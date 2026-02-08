@@ -14,7 +14,7 @@ type LatestTransactionsListProps = {
 };
 
 const truncateHash = (hash: string): string =>
-  `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+  `${hash.slice(0, 8)}...`;
 
 const LatestTransactionsList: FC<LatestTransactionsListProps> = ({ txs }) => {
   const {
@@ -35,13 +35,13 @@ const LatestTransactionsList: FC<LatestTransactionsListProps> = ({ txs }) => {
             className="flex items-center gap-4 px-4 py-3 text-sm"
           >
             {/* Tx icon + hash */}
-            <div className="flex min-w-[130px] items-center space-x-2">
+            <div className="flex shrink-0 items-center space-x-2">
               <span className="text-gray-400">
                 <FontAwesomeIcon icon={faExchangeAlt} />
               </span>
               <div>
                 <NavLink
-                  className="font-hash text-link-blue hover:text-link-blue-hover"
+                  className="font-hash text-xs text-link-blue hover:text-link-blue-hover"
                   to={transactionURL(tx.hash)}
                   title={tx.hash}
                 >

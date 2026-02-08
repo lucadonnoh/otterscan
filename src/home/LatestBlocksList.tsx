@@ -64,7 +64,7 @@ const LatestBlocksList: FC<LatestBlocksListProps> = ({ blocks }) => {
           <div className="min-w-0 flex-1">
             {block.miner && (
               <div className="flex items-baseline gap-1 text-xs">
-                <span className="shrink-0">Fee Recipient</span>
+                <span className="shrink-0">Miner</span>
                 <span className="min-w-0 truncate">
                   <DecoratedAddressLink address={block.miner} miner />
                 </span>
