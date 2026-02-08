@@ -1,110 +1,57 @@
-import { faQrcode } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC, lazy, memo, useContext, useState } from "react";
-import { NavLink } from "react-router";
-import Logo from "./Logo";
-import SourcifyMenu from "./SourcifyMenu";
-import Timestamp from "./components/Timestamp";
-import { useGenericSearch } from "./search/search";
-import { blockURL, slotURL } from "./url";
-import { useFinalizedSlotNumber, useSlotTimestamp } from "./useConsensus";
-import { useLatestBlockHeader } from "./useLatestBlock";
+import { FC, memo, useContext, useMemo } from "react";
+import { TickerContextProvider } from "./components/AutoRefreshAge";
+import HomeHeroSection from "./home/HomeHeroSection";
+import HomeStatsBar from "./home/HomeStatsBar";
+import LatestBlocksList from "./home/LatestBlocksList";
+import LatestTransactionsList from "./home/LatestTransactionsList";
+import { useGasPrice } from "./home/useGasPrice";
+import { useLatestTransactions } from "./home/useLatestTransactions";
+import { useRecentBlocks } from "./home/useRecentBlocks";
+import { useLatestBlockHeader, useLatestBlockNumber } from "./useLatestBlock";
 import { RuntimeContext } from "./useRuntime";
 import { usePageTitle } from "./useTitle";
-import { commify } from "./utils/utils";
-
-const CameraScanner = lazy(() => import("./search/CameraScanner"));
 
 const Home: FC = () => {
-  const { provider, config } = useContext(RuntimeContext);
-  const [searchRef, handleChange, handleSubmit] = useGenericSearch();
+  const { provider } = useContext(RuntimeContext);
 
   const latestBlock = useLatestBlockHeader(provider);
-  const finalizedSlotNumber = useFinalizedSlotNumber();
-  const slotTime = useSlotTimestamp(finalizedSlotNumber);
-  const [isScanning, setScanning] = useState<boolean>(false);
+  const latestBlockNumber = useLatestBlockNumber(provider);
+  const gasPrice = useGasPrice(provider);
+  const recentBlocks = useRecentBlocks(provider, latestBlockNumber);
+  const latestTxs = useLatestTransactions(provider, latestBlockNumber);
+
+  const tps = useMemo(() => {
+    if (recentBlocks.length < 2) return undefined;
+    const newest = recentBlocks[0];
+    const oldest = recentBlocks[recentBlocks.length - 1];
+    const timeSpan = newest.timestamp - oldest.timestamp;
+    if (timeSpan <= 0) return undefined;
+    const totalTxs = recentBlocks.reduce(
+      (sum, b) => sum + b.transactionCount,
+      0,
+    );
+    return { value: totalTxs / timeSpan, totalTxs, timeSpan };
+  }, [recentBlocks]);
 
   usePageTitle("Home");
 
   return (
-    <>
-      <div className="flex justify-end py-2 px-3 lg:px-9 h-[2.875rem]">
-        <SourcifyMenu />
-      </div>
-      <div className="flex grow flex-col items-center pb-5">
-        {isScanning && <CameraScanner turnOffScan={() => setScanning(false)} />}
-        <div className="mb-10 mt-5 flex max-h-64 grow items-end">
-          <Logo />
-        </div>
-        <form
-          className="flex min-w-[24rem] w-1/3 flex-col"
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          spellCheck={false}
-        >
-          <div className="mb-10 flex">
-            <input
-              className="w-full rounded-l border-b border-l border-t px-2 py-1 focus:outline-hidden"
-              type="text"
-              size={50}
-              data-test="home-search-input"
-              placeholder={`Search by address / txn hash / block number${
-                provider._network.getPlugin(
-                  "org.ethers.plugins.network.Ens",
-                ) !== null
-                  ? " / ENS name"
-                  : ""
-              }`}
-              onChange={handleChange}
-              ref={searchRef}
-              autoFocus
-            />
-            <button
-              className="flex items-center justify-center rounded-r border bg-skin-button-fill px-2 py-1 text-base text-skin-button hover:bg-skin-button-hover-fill focus:outline-hidden"
-              type="button"
-              onClick={() => setScanning(true)}
-              title="Scan an ETH address using your camera"
-            >
-              <FontAwesomeIcon icon={faQrcode} />
-            </button>
+    <TickerContextProvider>
+      <div className="min-h-screen bg-gray-50">
+        <HomeHeroSection />
+        <HomeStatsBar
+          latestBlock={latestBlock}
+          gasPrice={gasPrice}
+          tps={tps}
+        />
+        <div className="mx-auto mt-8 max-w-5xl px-4 pb-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <LatestBlocksList blocks={recentBlocks} />
+            <LatestTransactionsList txs={latestTxs} />
           </div>
-          <button
-            className="mx-auto mb-10 rounded-sm bg-skin-button-fill px-3 py-1 hover:bg-skin-button-hover-fill focus:outline-hidden"
-            type="submit"
-          >
-            Search
-          </button>
-        </form>
-        {!(config.branding?.hideAnnouncements ?? false) &&
-          config.experimental && (
-            <NavLink
-              className="text-md font-bold text-green-600 hover:text-green-800"
-              to="contracts/all"
-            >
-              🧪 EXPERIMENTAL CONTRACT BROWSER 🧪
-            </NavLink>
-          )}
-        {latestBlock && (
-          <NavLink
-            className="mt-5 flex flex-col items-center space-y-1 text-sm text-gray-500 hover:text-link-blue"
-            to={blockURL(latestBlock.number)}
-            data-test="home-latest-block-header"
-          >
-            <div>Latest block: {commify(latestBlock.number)}</div>
-            <Timestamp value={latestBlock.timestamp} />
-          </NavLink>
-        )}
-        {finalizedSlotNumber !== undefined && (
-          <NavLink
-            className="mt-5 flex flex-col items-center space-y-1 text-sm text-gray-500 hover:text-link-blue"
-            to={slotURL(finalizedSlotNumber)}
-          >
-            <div>Finalized slot: {commify(finalizedSlotNumber)}</div>
-            {slotTime && <Timestamp value={slotTime} />}
-          </NavLink>
-        )}
+        </div>
       </div>
-    </>
+    </TickerContextProvider>
   );
 };
 
