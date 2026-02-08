@@ -19,7 +19,7 @@ const ConnectionErrorPanel: FC<ConnectionErrorPanelProps> = ({
   return (
     <div className="flex h-screen flex-col bg-gray-300 font-sans">
       <div className="min-w-lg m-auto h-60 max-w-lg text-lg text-gray-700">
-        <Step type="wait" msg="Trying to connect to Erigon node..." />
+        <Step type="wait" msg="Trying to connect to Nethermind node..." />
         <div className="flex space-x-2">
           <span className="ml-7 text-base">{nodeURL}</span>
         </div>
@@ -44,40 +44,21 @@ const ConnectionErrorPanel: FC<ConnectionErrorPanelProps> = ({
         {connStatus === ConnectionStatus.NOT_ERIGON && (
           <>
             <Step type="ok" msg="It is an ETH node" />
-            <Step type="error" msg="It does not seem to be an Erigon node">
-              Make sure you rpcdaemon with Otterscan patches is up and running
-              and the <strong>erigon_</strong> namespace is enabled according to
-              the{" "}
-              <a
-                href="https://github.com/wmitsuda/otterscan#install-otterscan-patches-on-top-of-erigon"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-bold text-blue-800 hover:underline"
-              >
-                instructions
-              </a>
-              .
+            <Step type="error" msg="It does not seem to support the ots_ namespace">
+              Make sure the ots-proxy is running and the{" "}
+              <strong>ots_</strong> namespace is available.
             </Step>
           </>
         )}
         {connStatus === ConnectionStatus.NOT_OTTERSCAN_PATCHED && (
           <>
-            <Step type="ok" msg="It is an Erigon node" />
+            <Step type="ok" msg="It is an ETH node" />
             <Step
               type="error"
-              msg="It does not seem to contain up-to-date Otterscan patches"
+              msg="The ots_ API level is outdated"
             >
-              Make sure you compiled rpcdaemon with compatible Otterscan patches
-              and enabled <strong>ots_</strong> namespace according to the{" "}
-              <a
-                href="https://github.com/wmitsuda/otterscan#install-otterscan-patches-on-top-of-erigon"
-                target="_blank"
-                rel="noreferrer noopener"
-                className="font-bold text-blue-800 hover:underline"
-              >
-                instructions
-              </a>
-              .
+              Make sure the ots-proxy is up to date and the{" "}
+              <strong>ots_</strong> namespace returns the expected API level.
             </Step>
           </>
         )}

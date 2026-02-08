@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
             : "bg-orange-400 text-white dark:text-gray-900"
         } text-center`}
       >
-        Using Erigon node at {config.erigonURL}
+        Using Nethermind node via {config.erigonURL}
       </div>
     </>
   );
