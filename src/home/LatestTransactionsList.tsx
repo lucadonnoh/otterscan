@@ -4,6 +4,7 @@ import { formatEther } from "ethers";
 import { FC, memo } from "react";
 import { NavLink } from "react-router";
 import TimestampAge from "../components/TimestampAge";
+import DecoratedAddressLink from "../execution/components/DecoratedAddressLink";
 import { ProcessedTransaction } from "../types";
 import { useChainInfo } from "../useChainInfo";
 import { blockTxsURL, transactionURL } from "../url";
@@ -14,9 +15,6 @@ type LatestTransactionsListProps = {
 
 const truncateHash = (hash: string): string =>
   `${hash.slice(0, 10)}...${hash.slice(-8)}`;
-
-const truncateAddress = (addr: string): string =>
-  `${addr.slice(0, 8)}...${addr.slice(-6)}`;
 
 const LatestTransactionsList: FC<LatestTransactionsListProps> = ({ txs }) => {
   const {
@@ -58,27 +56,19 @@ const LatestTransactionsList: FC<LatestTransactionsListProps> = ({ txs }) => {
             {/* From -> To */}
             <div className="min-w-0 flex-1 text-xs">
               {tx.from && (
-                <div className="truncate">
-                  From{" "}
-                  <NavLink
-                    className="font-address text-link-blue hover:text-link-blue-hover"
-                    to={`/address/${tx.from}`}
-                    title={tx.from}
-                  >
-                    {truncateAddress(tx.from)}
-                  </NavLink>
+                <div className="flex items-baseline gap-1">
+                  <span className="shrink-0 text-gray-500">From</span>
+                  <span className="min-w-0 truncate">
+                    <DecoratedAddressLink address={tx.from} txFrom />
+                  </span>
                 </div>
               )}
               {tx.to && (
-                <div className="truncate">
-                  To{" "}
-                  <NavLink
-                    className="font-address text-link-blue hover:text-link-blue-hover"
-                    to={`/address/${tx.to}`}
-                    title={tx.to}
-                  >
-                    {truncateAddress(tx.to)}
-                  </NavLink>
+                <div className="flex items-baseline gap-1">
+                  <span className="shrink-0 text-gray-500">To</span>
+                  <span className="min-w-0 truncate">
+                    <DecoratedAddressLink address={tx.to} txTo />
+                  </span>
                 </div>
               )}
             </div>

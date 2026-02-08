@@ -37,7 +37,7 @@ const Home: FC = () => {
 
   return (
     <TickerContextProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="grow bg-gray-50">
         <HomeHeroSection />
         <HomeStatsBar
           latestBlock={latestBlock}

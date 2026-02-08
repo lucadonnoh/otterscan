@@ -1,9 +1,11 @@
 import { faCube } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { formatEther } from "ethers";
 import { FC, memo } from "react";
 import { NavLink } from "react-router";
-import NativeTokenAmount from "../components/NativeTokenAmount";
 import TimestampAge from "../components/TimestampAge";
+import DecoratedAddressLink from "../execution/components/DecoratedAddressLink";
+import { useChainInfo } from "../useChainInfo";
 import { ExtendedBlock } from "../useErigonHooks";
 import { blockURL, blockTxsURL } from "../url";
 import { commify } from "../utils/utils";
@@ -23,11 +25,11 @@ const calcBlockReward = (block: ExtendedBlock): bigint => {
   return block.blockReward + netFeeReward;
 };
 
-const truncateAddress = (addr: string): string =>
-  `${addr.slice(0, 8)}...${addr.slice(-6)}`;
-
 const LatestBlocksList: FC<LatestBlocksListProps> = ({ blocks }) => {
   const latestBlockNumber = blocks.length > 0 ? blocks[0].number : undefined;
+  const {
+    nativeCurrency: { symbol },
+  } = useChainInfo();
 
   return (
   <div className="rounded-lg border bg-white shadow-sm">
@@ -61,15 +63,11 @@ const LatestBlocksList: FC<LatestBlocksListProps> = ({ blocks }) => {
           {/* Miner + tx count */}
           <div className="min-w-0 flex-1">
             {block.miner && (
-              <div className="truncate text-xs">
-                Fee Recipient{" "}
-                <NavLink
-                  className="font-address text-link-blue hover:text-link-blue-hover"
-                  to={`/address/${block.miner}`}
-                  title={block.miner}
-                >
-                  {truncateAddress(block.miner)}
-                </NavLink>
+              <div className="flex items-baseline gap-1 text-xs">
+                <span className="shrink-0">Fee Recipient</span>
+                <span className="min-w-0 truncate">
+                  <DecoratedAddressLink address={block.miner} miner />
+                </span>
               </div>
             )}
             <div className="text-xs text-gray-500">
@@ -83,8 +81,8 @@ const LatestBlocksList: FC<LatestBlocksListProps> = ({ blocks }) => {
           </div>
 
           {/* Reward */}
-          <div className="text-right text-xs">
-            <NativeTokenAmount value={calcBlockReward(block)} />
+          <div className="whitespace-nowrap text-right text-xs">
+            {parseFloat(formatEther(calcBlockReward(block))).toFixed(5)} {symbol}
           </div>
         </div>
       ))}
