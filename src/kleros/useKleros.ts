@@ -129,6 +129,7 @@ export const getKlerosAddressTagsQuery = (
   staleTime: 60 * 60 * 1000, // 1 hour
   gcTime: 4 * 60 * 60 * 1000, // 4 hours
   enabled: enabled && !!chainId && addresses.length > 0,
+  retry: false,
 });
 
 /** Fetch Kleros tags for a single address. */

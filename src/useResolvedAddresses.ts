@@ -2,7 +2,7 @@ import { EnsPlugin, JsonRpcApiProvider, getAddress, isAddress } from "ethers";
 import { useContext, useEffect, useState } from "react";
 import { Fetcher } from "swr";
 import useSWRImmutable from "swr/immutable";
-import { getResolver } from "./api/address-resolver";
+import { getNameResolver, getResolver } from "./api/address-resolver";
 import { SelectedResolvedName } from "./api/address-resolver/CompositeAddressResolver";
 import {
   isGNSName,
@@ -101,21 +101,48 @@ export const useAddressOrName = (
   return [checksummedAddress, nameResolver, error];
 };
 
-export const useResolvedAddress = (
+type ResolutionMode = "full" | "name";
+type ResolvedAddressKey = [
+  id: "resolved-address",
+  chainId: string,
+  address: ChecksummedAddress,
+  mode: ResolutionMode,
+];
+
+const useResolvedAddressByMode = (
   provider: JsonRpcApiProvider,
   address: ChecksummedAddress,
+  mode: ResolutionMode,
 ): SelectedResolvedName<any> | undefined => {
   const fetcher: Fetcher<
     SelectedResolvedName<any> | undefined,
-    string
-  > = async (key) => {
-    const resolver = getResolver(provider._network.chainId);
+    ResolvedAddressKey
+  > = async ([_, __, key, resolutionMode]) => {
+    const resolver =
+      resolutionMode === "name"
+        ? getNameResolver(provider._network.chainId)
+        : getResolver(provider._network.chainId);
     return resolver.resolveAddress(provider, key);
   };
 
-  const { data, error } = useSWRImmutable(address, fetcher);
+  const { data, error } = useSWRImmutable(
+    ["resolved-address", provider._network.chainId.toString(), address, mode],
+    fetcher,
+  );
   if (error) {
     return undefined;
   }
   return data;
 };
+
+export const useResolvedAddress = (
+  provider: JsonRpcApiProvider,
+  address: ChecksummedAddress,
+): SelectedResolvedName<any> | undefined =>
+  useResolvedAddressByMode(provider, address, "full");
+
+export const useResolvedName = (
+  provider: JsonRpcApiProvider,
+  address: ChecksummedAddress,
+): SelectedResolvedName<any> | undefined =>
+  useResolvedAddressByMode(provider, address, "name");

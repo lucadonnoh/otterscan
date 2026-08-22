@@ -225,7 +225,7 @@ export type Match = {
   };
 };
 
-async function fetchSourcifyMetadata(
+export async function fetchSourcifyMetadata(
   sourcifySources: SourcifySourceMap,
   sourcifySourceName: SourcifySourceName,
   address: ChecksummedAddress | undefined,
@@ -246,6 +246,9 @@ async function fetchSourcifyMetadata(
       withSourceMap,
     );
     const res = await fetch(url);
+    if (res.status === 204) {
+      return null;
+    }
     if (res.ok) {
       if (
         sourcifySources[sourcifySourceName].backendFormat === "SourcifyAPIV2"

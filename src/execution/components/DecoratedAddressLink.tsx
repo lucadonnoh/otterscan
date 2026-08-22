@@ -19,7 +19,7 @@ import {
 import SourcifyLogo from "../../sourcify/SourcifyLogo";
 import { useSourcifyMetadata } from "../../sourcify/useSourcify";
 import { AddressContext, ChecksummedAddress, ZERO_ADDRESS } from "../../types";
-import { useResolvedAddress } from "../../useResolvedAddresses";
+import { useResolvedName } from "../../useResolvedAddresses";
 import { RuntimeContext } from "../../useRuntime";
 import AddressAttributes from "../address/AddressAttributes";
 import { VerifiedContractRenderer } from "../address/renderer/VerifiedContractName";
@@ -150,7 +150,7 @@ const ResolvedAddress: FC<ResolvedAddressProps> = ({
   dontOverrideColors,
 }) => {
   const { provider } = useContext(RuntimeContext);
-  const resolvedAddress = useResolvedAddress(provider, address);
+  const resolvedAddress = useResolvedName(provider, address);
   const klerosTags = useKlerosAddressTags(address);
   const linkable = address !== selectedAddress;
   const match = useSourcifyMetadata(address, provider._network.chainId);
