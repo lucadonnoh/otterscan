@@ -1,5 +1,13 @@
 import { describe, expect, test } from "@jest/globals";
-import { getJsonRpcBatchOptions, getJsonRpcFetchRequest } from "./useProvider";
+import {
+  getJsonRpcBatchOptions,
+  getJsonRpcFetchRequest,
+  RPC_POLLING_INTERVAL,
+} from "./useProvider";
+
+test("polls at Ethereum's block cadence", () => {
+  expect(RPC_POLLING_INTERVAL).toBe(12_000);
+});
 
 describe("getJsonRpcBatchOptions", () => {
   test("preserves the ethers default when unset", () => {

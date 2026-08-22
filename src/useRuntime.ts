@@ -5,6 +5,7 @@ import {
   createAndProbeProvider,
   getJsonRpcBatchOptions,
   getJsonRpcFetchRequest,
+  RPC_POLLING_INTERVAL,
 } from "./useProvider";
 
 /**
@@ -55,6 +56,7 @@ export const createRuntime = async (
       network,
       {
         staticNetwork: network,
+        pollingInterval: RPC_POLLING_INTERVAL,
         ...getJsonRpcBatchOptions(effectiveConfig.rpcBatchMaxCount),
       },
     );

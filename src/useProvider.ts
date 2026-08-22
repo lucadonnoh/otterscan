@@ -10,6 +10,11 @@ import { ConnectionStatus } from "./types";
 
 export const DEFAULT_ERIGON_URL = "http://127.0.0.1:8545";
 
+// Ethereum produces a new block roughly every 12 seconds. Polling four times
+// within that interval only repeats eth_blockNumber requests and can keep a
+// rate-limited public explorer pinned against its gateway limit.
+export const RPC_POLLING_INTERVAL = 12_000;
+
 export const getJsonRpcBatchOptions = (
   batchMaxCount?: number,
 ): { batchMaxCount?: number } => {
@@ -60,6 +65,7 @@ export const createAndProbeProvider = async (
       undefined,
       {
         staticNetwork: true,
+        pollingInterval: RPC_POLLING_INTERVAL,
         ...getJsonRpcBatchOptions(batchMaxCount),
       },
     );
