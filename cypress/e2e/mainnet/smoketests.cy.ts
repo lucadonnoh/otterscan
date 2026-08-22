@@ -17,6 +17,15 @@ describe("Basic navigation", () => {
     );
   });
 
+  it("Should prioritize and brand .gwei when ENS is also present", () => {
+    cy.visit("/address/0x0035fc5208ef989c28d47e552e92b0c507d2b318");
+
+    cy.get('[data-test="resolved-name"]', { timeout: 15_000 })
+      .should("contain", "banteg.gwei")
+      .and("not.contain", "banteg.eth");
+    cy.get('img[alt="GNS Logo"]', { timeout: 15_000 }).should("be.visible");
+  });
+
   it("Should load vitalik.eth address", () => {
     // From the home page, go to vitalik.eth address page, expect it finds it
     cy.visit("/");

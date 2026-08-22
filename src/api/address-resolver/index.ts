@@ -1,4 +1,5 @@
 import { ensRenderer } from "../../execution/address/renderer/ENSName";
+import { gnsRenderer } from "../../execution/address/renderer/GNSName";
 import { plainStringRenderer } from "../../execution/address/renderer/PlainString";
 import { tokenRenderer } from "../../execution/address/renderer/TokenName";
 import { uniswapV1PairRenderer } from "../../execution/address/renderer/UniswapV1ExchangeName";
@@ -32,8 +33,8 @@ export const customLabelResolver = new CustomLabelResolver();
 
 const _mainnetResolver = new CompositeAddressResolver();
 _mainnetResolver.addResolver(customLabelResolver);
-_mainnetResolver.addResolver(ensResolver);
 _mainnetResolver.addResolver(gnsResolver);
+_mainnetResolver.addResolver(ensResolver);
 _mainnetResolver.addResolver(uniswapV3Resolver);
 _mainnetResolver.addResolver(uniswapV2Resolver);
 _mainnetResolver.addResolver(uniswapV1Resolver);
@@ -66,7 +67,7 @@ export const resolverRendererRegistry = new Map<
   ResolvedAddressRenderer<any>
 >();
 resolverRendererRegistry.set(ensResolver, ensRenderer);
-resolverRendererRegistry.set(gnsResolver, plainStringRenderer);
+resolverRendererRegistry.set(gnsResolver, gnsRenderer);
 resolverRendererRegistry.set(uniswapV1Resolver, uniswapV1PairRenderer);
 resolverRendererRegistry.set(uniswapV2Resolver, uniswapV2PairRenderer);
 resolverRendererRegistry.set(uniswapV3Resolver, uniswapV3PairRenderer);
