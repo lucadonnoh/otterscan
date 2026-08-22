@@ -110,6 +110,12 @@ export type OtterscanConfig = {
   erigonURL?: string;
 
   /**
+   * Maximum number of calls in a JSON-RPC HTTP batch. If omitted, ethers uses
+   * its default. This does not apply to WebSocket providers.
+   */
+  rpcBatchMaxCount?: number;
+
+  /**
    * (optional) URL for Beacon chain REST API (for merged chains)
    */
   beaconAPI?: string;

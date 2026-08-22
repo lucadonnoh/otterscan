@@ -5,8 +5,21 @@ import { ConnectionStatus } from "./types";
 
 export const DEFAULT_ERIGON_URL = "http://127.0.0.1:8545";
 
+export const getJsonRpcBatchOptions = (
+  batchMaxCount?: number,
+): { batchMaxCount?: number } => {
+  if (batchMaxCount === undefined) {
+    return {};
+  }
+  if (!Number.isInteger(batchMaxCount) || batchMaxCount < 1) {
+    throw new Error("rpcBatchMaxCount must be a positive integer");
+  }
+  return { batchMaxCount };
+};
+
 export const createAndProbeProvider = async (
   erigonURL?: string,
+  batchMaxCount?: number,
 ): Promise<JsonRpcApiProvider> => {
   if (erigonURL !== undefined) {
     if (erigonURL === "") {
@@ -30,6 +43,7 @@ export const createAndProbeProvider = async (
     // Batching takes place by default
     provider = new JsonRpcProvider(erigonURL, undefined, {
       staticNetwork: true,
+      ...getJsonRpcBatchOptions(batchMaxCount),
     });
   }
 
