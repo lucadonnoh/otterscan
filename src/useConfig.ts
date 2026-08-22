@@ -1,3 +1,5 @@
+import { normalizeOtterscanConfig } from "./configUtils";
+
 /**
  * Defines a set of metadata for a certain chain.
  *
@@ -284,7 +286,9 @@ export const loadOtterscanConfig = async (): Promise<OtterscanConfig> => {
     // We trust the contents of VITE_CONFIG_JSON to be a valid
     // Otterscan JSON configuration
     try {
-      return JSON.parse(import.meta.env.VITE_CONFIG_JSON);
+      return normalizeOtterscanConfig(
+        JSON.parse(import.meta.env.VITE_CONFIG_JSON),
+      );
     } catch (err) {
       throw new Error("Error while reading config file", { cause: err });
     }
@@ -313,10 +317,11 @@ export const loadOtterscanConfig = async (): Promise<OtterscanConfig> => {
         );
       }
     }
+    const normalizedConfig = normalizeOtterscanConfig(config);
     console.info("Loaded app config");
-    console.info(config);
+    console.info(normalizedConfig);
 
-    return config;
+    return normalizedConfig;
   } catch (err) {
     throw new Error(`Error while reading config file: ${configURL}`, {
       cause: err,
