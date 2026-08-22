@@ -1,11 +1,17 @@
 import { describe, expect, jest, test } from "@jest/globals";
 import { Interface, JsonRpcApiProvider, getAddress } from "ethers";
-import { isGNSName, resolveGNSName, supportsGNS } from "./GNSNameResolver";
+import {
+  isGNSName,
+  resolveGNSName,
+  reverseResolveGNSAddress,
+  supportsGNS,
+} from "./GNSNameResolver";
 
 const NAME_NFT_ADDRESS = "0x9D51D507BC7264d4fE8Ad1cf7Fe191933A0a81d6";
 const NAME_NFT_INTERFACE = new Interface([
   "function computeId(string name) view returns (uint256)",
   "function resolve(uint256 tokenId) view returns (address)",
+  "function reverseResolve(address addr) view returns (string)",
 ]);
 
 const mockProvider = (...responses: string[]) => {
@@ -82,5 +88,49 @@ describe("GNS name resolution", () => {
     const provider = { call } as unknown as Pick<JsonRpcApiProvider, "call">;
 
     await expect(resolveGNSName(provider, 1n, "gns.gwei")).resolves.toBeNull();
+  });
+
+  test("reverse resolves a primary name", async () => {
+    const address = "0xc04689227fa24785609b1174698dbe481437f1a3";
+    const { call, provider } = mockProvider(
+      NAME_NFT_INTERFACE.encodeFunctionResult("reverseResolve", [
+        "donnoh.gwei",
+      ]),
+    );
+
+    await expect(reverseResolveGNSAddress(provider, 1n, address)).resolves.toBe(
+      "donnoh.gwei",
+    );
+    expect(call).toHaveBeenCalledWith({
+      to: NAME_NFT_ADDRESS,
+      data: NAME_NFT_INTERFACE.encodeFunctionData("reverseResolve", [address]),
+    });
+  });
+
+  test("returns null when an address has no primary name", async () => {
+    const { provider } = mockProvider(
+      NAME_NFT_INTERFACE.encodeFunctionResult("reverseResolve", [""]),
+    );
+
+    await expect(
+      reverseResolveGNSAddress(
+        provider,
+        1n,
+        "0x1d9640c0858b26b625dcdbee8d6e12fa88e55880",
+      ),
+    ).resolves.toBeNull();
+  });
+
+  test("does not reverse resolve on unsupported networks", async () => {
+    const { call, provider } = mockProvider();
+
+    await expect(
+      reverseResolveGNSAddress(
+        provider,
+        10n,
+        "0xc04689227fa24785609b1174698dbe481437f1a3",
+      ),
+    ).resolves.toBeNull();
+    expect(call).not.toHaveBeenCalled();
   });
 });

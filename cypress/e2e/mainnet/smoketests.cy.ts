@@ -9,6 +9,14 @@ describe("Basic navigation", () => {
     cy.get('[data-test="resolved-name"]').contains("GNS: gns.gwei");
   });
 
+  it("Should reverse resolve a primary .gwei name", () => {
+    cy.visit("/address/0xC04689227Fa24785609B1174698DBe481437f1A3");
+
+    cy.get('[data-test="resolved-name"]', { timeout: 15_000 }).contains(
+      "donnoh.gwei",
+    );
+  });
+
   it("Should load vitalik.eth address", () => {
     // From the home page, go to vitalik.eth address page, expect it finds it
     cy.visit("/");
