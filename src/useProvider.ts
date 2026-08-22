@@ -1,4 +1,9 @@
-import { JsonRpcApiProvider, JsonRpcProvider, WebSocketProvider } from "ethers";
+import {
+  FetchRequest,
+  JsonRpcApiProvider,
+  JsonRpcProvider,
+  WebSocketProvider,
+} from "ethers";
 import { ProbeError } from "./ProbeError";
 import { MIN_API_LEVEL } from "./params";
 import { ConnectionStatus } from "./types";
@@ -15,6 +20,15 @@ export const getJsonRpcBatchOptions = (
     throw new Error("rpcBatchMaxCount must be a positive integer");
   }
   return { batchMaxCount };
+};
+
+export const getJsonRpcFetchRequest = (url?: string): FetchRequest => {
+  const request = new FetchRequest(url ?? DEFAULT_ERIGON_URL);
+  // A browser explorer should fail a throttled request once and let the user
+  // retry through navigation. ethers otherwise retries HTTP 429 responses up
+  // to its transport limit, multiplying an already overloaded request burst.
+  request.retryFunc = async () => false;
+  return request;
 };
 
 export const createAndProbeProvider = async (
@@ -41,10 +55,14 @@ export const createAndProbeProvider = async (
     });
   } else {
     // Batching takes place by default
-    provider = new JsonRpcProvider(erigonURL, undefined, {
-      staticNetwork: true,
-      ...getJsonRpcBatchOptions(batchMaxCount),
-    });
+    provider = new JsonRpcProvider(
+      getJsonRpcFetchRequest(erigonURL),
+      undefined,
+      {
+        staticNetwork: true,
+        ...getJsonRpcBatchOptions(batchMaxCount),
+      },
+    );
   }
 
   // Check if it is at least a regular ETH node

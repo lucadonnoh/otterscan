@@ -33,9 +33,11 @@ const TransactionAddress: FC<TransactionAddressProps> = ({
   const block = useBlockDataFromTransaction(provider, txData);
 
   const blockNumber = useBlockNumberContext();
+  const shouldCheckCode =
+    showCodeIndicator && (creation || blockNumber !== undefined);
   const hasCode = useHasCode(
     provider,
-    address,
+    shouldCheckCode ? address : undefined,
     blockNumber !== undefined
       ? blockNumber === "latest"
         ? "latest"

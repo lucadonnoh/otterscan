@@ -1,7 +1,11 @@
 import { JsonRpcApiProvider, JsonRpcProvider, Network } from "ethers";
 import { createContext } from "react";
 import { OtterscanConfig } from "./useConfig";
-import { createAndProbeProvider, getJsonRpcBatchOptions } from "./useProvider";
+import {
+  createAndProbeProvider,
+  getJsonRpcBatchOptions,
+  getJsonRpcFetchRequest,
+} from "./useProvider";
 
 /**
  * A runtime comprises a OtterscanConfig read from somewhere, +
@@ -46,10 +50,14 @@ export const createRuntime = async (
   let provider: JsonRpcApiProvider;
   if (effectiveConfig.experimentalFixedChainId !== undefined) {
     const network = Network.from(effectiveConfig.experimentalFixedChainId);
-    provider = new JsonRpcProvider(effectiveConfig.erigonURL, network, {
-      staticNetwork: network,
-      ...getJsonRpcBatchOptions(effectiveConfig.rpcBatchMaxCount),
-    });
+    provider = new JsonRpcProvider(
+      getJsonRpcFetchRequest(effectiveConfig.erigonURL),
+      network,
+      {
+        staticNetwork: network,
+        ...getJsonRpcBatchOptions(effectiveConfig.rpcBatchMaxCount),
+      },
+    );
   } else {
     provider = await createAndProbeProvider(
       effectiveConfig.erigonURL,

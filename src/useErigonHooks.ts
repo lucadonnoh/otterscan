@@ -391,7 +391,12 @@ export const useSendsToMiner = (
   txHash: string | undefined,
   miner: string | undefined,
 ): [boolean, InternalOperation[]] | [undefined, undefined] => {
-  const ops = useInternalOperations(provider, txHash);
+  // Some transaction-list APIs do not include the miner. In that case the
+  // result can never be true, so do not fetch every transaction's internals.
+  const ops = useInternalOperations(
+    provider,
+    miner !== undefined ? txHash : undefined,
+  );
   if (ops === undefined) {
     return [undefined, undefined];
   }
@@ -900,8 +905,12 @@ export const hasCodeQuery = (
 ): UseQueryOptions<boolean> => ({
   queryKey: ["ots_hasCode", address, blockTag],
   queryFn: () => {
+    if (address === undefined) {
+      throw new Error("Address is undefined");
+    }
     return provider.send("ots_hasCode", [address, blockTag]);
   },
+  enabled: address !== undefined,
 });
 
 export const getCodeQuery = (
@@ -911,8 +920,12 @@ export const getCodeQuery = (
 ): UseQueryOptions<string> => ({
   queryKey: ["eth_getCode", address, blockTag],
   queryFn: () => {
+    if (address === undefined) {
+      throw new Error("Address is undefined");
+    }
     return provider.send("eth_getCode", [address, blockTag]);
   },
+  enabled: address !== undefined,
 });
 
 const ERC20_PROTOTYPE = new Contract(ZeroAddress, erc20);

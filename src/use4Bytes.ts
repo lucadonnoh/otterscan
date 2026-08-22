@@ -57,7 +57,9 @@ export const fetchFourBytesSignature = async (
   const signatureURL = fourBytesURL(assetsURLPrefix, fourBytes);
 
   try {
-    const res = await fetch(signatureURL);
+    // Missing entries used to be served as cacheable 404s. Bypass any stale
+    // negative browser cache now that misses are represented by HTTP 204.
+    const res = await fetch(signatureURL, { cache: "no-store" });
     if (res.status === 204 || res.status === 404) {
       return null;
     }

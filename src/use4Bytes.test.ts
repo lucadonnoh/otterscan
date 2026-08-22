@@ -18,7 +18,9 @@ describe("fetchFourBytesSignature", () => {
     globalThis.fetch = fetchMock;
 
     await expect(fetchFourBytesSignature("", "0xea9384fa")).resolves.toBeNull();
-    expect(fetchMock).toHaveBeenCalledWith("/signatures/ea9384fa");
+    expect(fetchMock).toHaveBeenCalledWith("/signatures/ea9384fa", {
+      cache: "no-store",
+    });
     expect(text).not.toHaveBeenCalled();
   });
 

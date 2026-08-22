@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { getJsonRpcBatchOptions } from "./useProvider";
+import { getJsonRpcBatchOptions, getJsonRpcFetchRequest } from "./useProvider";
 
 describe("getJsonRpcBatchOptions", () => {
   test("preserves the ethers default when unset", () => {
@@ -18,4 +18,16 @@ describe("getJsonRpcBatchOptions", () => {
       );
     },
   );
+});
+
+describe("getJsonRpcFetchRequest", () => {
+  test("does not automatically retry HTTP rate limits", async () => {
+    const request = getJsonRpcFetchRequest("https://example.com/rpc");
+
+    expect(request.url).toBe("https://example.com/rpc");
+    expect(request.retryFunc).not.toBeNull();
+    await expect(
+      request.retryFunc!(request, undefined as never, 0),
+    ).resolves.toBe(false);
+  });
 });
