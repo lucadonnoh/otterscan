@@ -267,6 +267,13 @@ export type OtterscanConfig = {
      * The explorer sends only a fixed route category, never the raw path.
      */
     pageviewEndpoint?: string;
+
+    /**
+     * Relative same-origin endpoint prefix for recent consensus issuance.
+     * The endpoint is optional and is expected to derive data live without an
+     * explorer index.
+     */
+    consensusIssuanceEndpoint?: string;
   };
 
   /**
