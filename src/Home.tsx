@@ -58,20 +58,18 @@ const Home: FC = () => {
   return (
     <>
       {isScanning && <CameraScanner turnOffScan={() => setScanning(false)} />}
-      <main className="min-h-0 grow overflow-y-auto bg-slate-50 dark:bg-slate-950">
-        <header className="relative z-20 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-          <div className="border-b border-slate-100 dark:border-slate-900">
+      <main className="min-h-0 grow overflow-y-auto bg-slate-50">
+        <header className="relative z-20 border-b border-slate-200 bg-white">
+          <div className="border-b border-slate-100">
             <div className="mx-auto flex min-h-10 max-w-[100rem] items-center justify-between px-3 sm:px-5 lg:px-8">
               <div className="hidden sm:block">
                 {showPrice ? (
                   <PriceBox />
                 ) : (
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    {networkName}
-                  </span>
+                  <span className="text-xs text-slate-500">{networkName}</span>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
@@ -93,7 +91,7 @@ const Home: FC = () => {
                 width={44}
               />
               <span
-                className="truncate font-title text-2xl font-bold text-slate-800 dark:text-slate-100"
+                className="truncate font-title text-2xl font-bold text-slate-800"
                 data-test="logotext"
               >
                 {config.branding?.siteName || "Otterscan"}
@@ -110,14 +108,14 @@ const Home: FC = () => {
                   Home
                 </NavLink>
                 <NavLink
-                  className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                  className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue"
                   to="/special/liveBlocks"
                 >
                   Latest blocks
                 </NavLink>
                 {finalizedSlotNumber !== undefined && (
                   <NavLink
-                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue"
                     to={`/slot/${finalizedSlotNumber}`}
                   >
                     Consensus
@@ -125,7 +123,7 @@ const Home: FC = () => {
                 )}
                 {config.experimental && (
                   <NavLink
-                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue"
                     to="/contracts/all"
                   >
                     Contracts
@@ -139,7 +137,7 @@ const Home: FC = () => {
           </nav>
         </header>
 
-        <section className="home-hero-pattern relative overflow-hidden text-white">
+        <section className="home-hero-pattern dark-no-invert relative overflow-hidden text-white">
           <div className="relative mx-auto max-w-[100rem] px-3 pt-11 pb-28 sm:px-5 sm:pt-14 lg:px-8">
             <div className="max-w-5xl">
               <div className="mb-3 text-xs font-bold tracking-[0.16em] text-sky-300 uppercase">
@@ -215,7 +213,7 @@ const Home: FC = () => {
             config.experimental && (
               <div className="pt-6 text-center">
                 <NavLink
-                  className="text-sm font-bold text-emerald-600 hover:text-emerald-800 dark:text-emerald-400"
+                  className="text-sm font-bold text-emerald-600 hover:text-emerald-800"
                   to="/contracts/all"
                 >
                   Explore the experimental contract browser

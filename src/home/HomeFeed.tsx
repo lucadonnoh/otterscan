@@ -39,20 +39,18 @@ type MetricProps = {
 };
 
 const Metric: FC<MetricProps> = ({ icon, label, value, detail }) => (
-  <div className="flex min-h-32 items-center gap-4 bg-white px-5 py-5 dark:bg-slate-900">
-    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-link-blue dark:bg-sky-950/60 dark:text-link-blue-light">
+  <div className="flex min-h-32 items-center gap-4 bg-white px-5 py-5">
+    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-link-blue">
       <FontAwesomeIcon icon={icon} />
     </div>
     <div className="min-w-0">
-      <div className="text-[0.68rem] font-bold tracking-[0.12em] text-slate-500 uppercase dark:text-slate-400">
+      <div className="text-[0.68rem] font-bold tracking-[0.12em] text-slate-500 uppercase">
         {label}
       </div>
-      <div className="mt-1 truncate text-xl font-semibold text-slate-900 dark:text-slate-100">
+      <div className="mt-1 truncate text-xl font-semibold text-slate-900">
         {value}
       </div>
-      <div className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
-        {detail}
-      </div>
+      <div className="mt-1 truncate text-xs text-slate-500">{detail}</div>
     </div>
   </div>
 );
@@ -63,16 +61,12 @@ type PanelProps = PropsWithChildren<{
 }>;
 
 const Panel: FC<PanelProps> = ({ title, footer, children }) => (
-  <section className="flex min-h-[31rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
-    <header className="border-b border-slate-200 px-5 py-4 dark:border-slate-800">
-      <h2 className="font-title text-base font-bold text-slate-900 dark:text-slate-100">
-        {title}
-      </h2>
+  <section className="flex min-h-[31rem] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs">
+    <header className="border-b border-slate-200 px-5 py-4">
+      <h2 className="font-title text-base font-bold text-slate-900">{title}</h2>
     </header>
-    <div className="grow divide-y divide-slate-100 dark:divide-slate-800">
-      {children}
-    </div>
-    <footer className="border-t border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold tracking-wide uppercase dark:border-slate-800 dark:bg-slate-950/40">
+    <div className="grow divide-y divide-slate-100">{children}</div>
+    <footer className="border-t border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold tracking-wide uppercase">
       {footer}
     </footer>
   </section>
@@ -85,19 +79,19 @@ const PanelSkeleton: FC = () => (
         className="grid animate-pulse grid-cols-[2.75rem_minmax(0,1fr)_auto] gap-3 px-5 py-4"
         key={index}
       >
-        <div className="h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-11 w-11 rounded-xl bg-slate-100" />
         <div className="space-y-2 py-1">
-          <div className="h-3 w-28 rounded bg-slate-100 dark:bg-slate-800" />
-          <div className="h-3 w-44 max-w-full rounded bg-slate-100 dark:bg-slate-800" />
+          <div className="h-3 w-28 rounded bg-slate-100" />
+          <div className="h-3 w-44 max-w-full rounded bg-slate-100" />
         </div>
-        <div className="h-6 w-16 rounded-lg bg-slate-100 dark:bg-slate-800" />
+        <div className="h-6 w-16 rounded-lg bg-slate-100" />
       </div>
     ))}
   </>
 );
 
 const Unavailable: FC = () => (
-  <div className="flex min-h-80 items-center justify-center px-5 text-center text-sm text-slate-500 dark:text-slate-400">
+  <div className="flex min-h-80 items-center justify-center px-5 text-center text-sm text-slate-500">
     Live data is temporarily unavailable. The explorer will retry on the next
     block.
   </div>
@@ -123,7 +117,7 @@ const BlockRow: FC<{ block: HomeBlockSummary }> = ({ block }) => {
 
   return (
     <div className="grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3.5">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-500">
         <FontAwesomeIcon icon={faCube} />
       </div>
       <div className="min-w-0">
@@ -134,13 +128,13 @@ const BlockRow: FC<{ block: HomeBlockSummary }> = ({ block }) => {
           >
             {commify(block.number)}
           </NavLink>
-          <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+          <span className="shrink-0 text-xs text-slate-500">
             <TimestampAge timestamp={block.timestamp} />
           </span>
         </div>
-        <div className="mt-1 truncate text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-1 truncate text-xs text-slate-500">
           Fee recipient <AddressLink address={block.feeRecipient} />
-          <span className="px-1.5 text-slate-300 dark:text-slate-700">·</span>
+          <span className="px-1.5 text-slate-300">·</span>
           <NavLink
             className="text-link-blue hover:text-link-blue-hover"
             to={blockTxsURL(block.number)}
@@ -150,7 +144,7 @@ const BlockRow: FC<{ block: HomeBlockSummary }> = ({ block }) => {
         </div>
       </div>
       <div className="text-right">
-        <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 font-balance text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 font-balance text-xs text-slate-700">
           {gasPercentage.toFixed(1)}%
         </div>
         <div className="mt-1 hidden text-[0.65rem] text-slate-400 sm:block">
@@ -173,8 +167,8 @@ const TransactionRow: FC<{
       <div
         className={`flex h-11 w-11 items-center justify-center rounded-xl ${
           transaction.status === 0
-            ? "bg-red-50 text-red-500 dark:bg-red-950/50"
-            : "bg-slate-50 text-slate-500 dark:bg-slate-800 dark:text-slate-300"
+            ? "bg-red-50 text-red-500"
+            : "bg-slate-50 text-slate-500"
         }`}
       >
         <FontAwesomeIcon icon={faFileLines} />
@@ -188,25 +182,25 @@ const TransactionRow: FC<{
           >
             {shortenHex(transaction.hash)}
           </NavLink>
-          <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+          <span className="shrink-0 text-xs text-slate-500">
             <TimestampAge timestamp={transaction.timestamp} />
           </span>
         </div>
-        <div className="mt-1 flex min-w-0 gap-1.5 truncate text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-1 flex min-w-0 gap-1.5 truncate text-xs text-slate-500">
           <span>From</span>
           <AddressLink address={transaction.from} />
-          <span className="text-slate-300 dark:text-slate-700">→</span>
+          <span className="text-slate-300">→</span>
           {recipient ? (
             <AddressLink address={recipient} />
           ) : (
             <span>Contract creation</span>
           )}
         </div>
-        <div className="mt-1 text-xs text-slate-500 sm:hidden dark:text-slate-400">
+        <div className="mt-1 text-xs text-slate-500 sm:hidden">
           {formatNativeValue(transaction.value, nativeSymbol, nativeDecimals)}
         </div>
       </div>
-      <div className="hidden max-w-28 truncate rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 font-balance text-xs text-slate-700 sm:block dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+      <div className="hidden max-w-28 truncate rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 font-balance text-xs text-slate-700 sm:block">
         {formatNativeValue(transaction.value, nativeSymbol, nativeDecimals)}
       </div>
     </div>
@@ -217,10 +211,7 @@ const FooterLink: FC<{ to: string; children: ReactNode }> = ({
   to,
   children,
 }) => (
-  <NavLink
-    className="text-slate-600 hover:text-link-blue dark:text-slate-300 dark:hover:text-link-blue-light"
-    to={to}
-  >
+  <NavLink className="text-slate-600 hover:text-link-blue" to={to}>
     {children} <FontAwesomeIcon className="ml-1" icon={faArrowRight} />
   </NavLink>
 );
@@ -241,7 +232,7 @@ const HomeFeed: FC<HomeFeedProps> = ({
   return (
     <TickerContextProvider>
       <div className="space-y-5">
-        <section className="grid gap-px overflow-hidden rounded-2xl bg-slate-200 shadow-lg shadow-slate-900/5 sm:grid-cols-2 xl:grid-cols-4 dark:bg-slate-700 dark:shadow-black/20">
+        <section className="grid gap-px overflow-hidden rounded-2xl bg-slate-200 shadow-lg shadow-slate-900/5 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
             icon={faCube}
             label="Latest block"
@@ -352,7 +343,7 @@ const HomeFeed: FC<HomeFeedProps> = ({
             ) : feed.transactionsUnavailable ? (
               <Unavailable />
             ) : (
-              <div className="flex min-h-80 items-center justify-center px-5 text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex min-h-80 items-center justify-center px-5 text-sm text-slate-500">
                 The latest block contains no transactions.
               </div>
             )}
