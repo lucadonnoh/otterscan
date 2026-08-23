@@ -101,6 +101,22 @@
 }
 
 @layer components {
+  .home-hero-pattern {
+    background-color: #0b2540;
+    background-image:
+      radial-gradient(
+        circle at 18% -20%,
+        rgb(52 152 219 / 28%),
+        transparent 34rem
+      ),
+      repeating-radial-gradient(
+        ellipse at 88% 12%,
+        transparent 0 2.6rem,
+        rgb(149 201 236 / 8%) 2.65rem 2.72rem
+      ),
+      linear-gradient(115deg, rgb(7 24 43 / 35%), transparent 65%);
+  }
+
   img {
     @apply dark-no-invert;
   }

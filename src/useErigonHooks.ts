@@ -174,6 +174,14 @@ const blockTransactionsFetcher: Fetcher<
   return { total: result.fullblock.transactionCount, txs: rawTxs };
 };
 
+export const readBlockTransactions = async (
+  provider: JsonRpcApiProvider,
+  blockNumber: number,
+  pageNumber: number,
+  pageSize: number,
+): Promise<BlockTransactionsPage> =>
+  await blockTransactionsFetcher([provider, blockNumber, pageNumber, pageSize]);
+
 export const useBlockTransactions = (
   provider: JsonRpcApiProvider,
   blockNumber: number | undefined,
@@ -184,7 +192,8 @@ export const useBlockTransactions = (
     blockNumber !== undefined
       ? [provider, blockNumber, pageNumber, pageSize]
       : null,
-    blockTransactionsFetcher,
+    ([provider, blockNumber, pageNumber, pageSize]) =>
+      readBlockTransactions(provider, blockNumber, pageNumber, pageSize),
     { keepPreviousData: true },
   );
   if (error) {

@@ -1,112 +1,229 @@
-import { faQrcode } from "@fortawesome/free-solid-svg-icons";
+import {
+  faMagnifyingGlass,
+  faQrcode,
+  faServer,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC, lazy, memo, useContext, useState } from "react";
 import { NavLink } from "react-router";
-import Logo from "./Logo";
+import PriceBox from "./PriceBox";
 import SourcifyMenu from "./SourcifyMenu";
 import { supportsGNS } from "./api/name-resolver/GNSNameResolver";
-import Timestamp from "./components/Timestamp";
+import HomeFeed from "./home/HomeFeed";
+import { useHomeFeed } from "./home/useHomeFeed";
 import { useGenericSearch } from "./search/search";
-import { blockURL, slotURL } from "./url";
+import { useChainInfo } from "./useChainInfo";
 import { useFinalizedSlotNumber, useSlotTimestamp } from "./useConsensus";
-import { useLatestBlockHeader } from "./useLatestBlock";
 import { RuntimeContext } from "./useRuntime";
 import { usePageTitle } from "./useTitle";
-import { commify } from "./utils/utils";
+// @ts-expect-error
+import Otter from "./otter.png?w=128&h=128&webp";
 
 const CameraScanner = lazy(() => import("./search/CameraScanner"));
 
 const Home: FC = () => {
   const { provider, config } = useContext(RuntimeContext);
+  const { name: configuredNetworkName, nativeCurrency } = useChainInfo();
   const [searchRef, handleChange, handleSubmit] = useGenericSearch();
-
-  const latestBlock = useLatestBlockHeader(provider);
-  const finalizedSlotNumber = useFinalizedSlotNumber();
-  const slotTime = useSlotTimestamp(finalizedSlotNumber);
   const [isScanning, setScanning] = useState<boolean>(false);
+
+  const chainId = provider._network.chainId;
+  const networkName =
+    configuredNetworkName.trim() ||
+    (chainId === 1n
+      ? "Ethereum Mainnet"
+      : provider._network.name !== "unknown"
+        ? provider._network.name
+        : `Chain ${chainId.toString()}`);
+  const hasENS =
+    provider._network.getPlugin("org.ethers.plugins.network.Ens") !== null;
+  const hasGNS = supportsGNS(chainId);
+  const feed = useHomeFeed(provider);
+  const finalizedSlotNumber = useFinalizedSlotNumber();
+  const finalizedSlotTimestamp = useSlotTimestamp(finalizedSlotNumber);
+  const showPrice =
+    chainId === 1n ||
+    config.priceOracleInfo?.nativeTokenPrice?.ethUSDOracleAddress !== undefined;
 
   usePageTitle("Home");
 
+  const searchTypes = [
+    "address",
+    "transaction hash",
+    "block",
+    ...(hasENS ? ["ENS name"] : []),
+    ...(hasGNS ? [".gwei name"] : []),
+  ];
+
   return (
     <>
-      <div className="flex justify-end py-2 px-3 lg:px-9 h-[2.875rem]">
-        <SourcifyMenu />
-      </div>
-      <div className="flex grow flex-col items-center pb-5">
-        {isScanning && <CameraScanner turnOffScan={() => setScanning(false)} />}
-        <div className="mb-10 mt-5 flex max-h-64 grow items-end">
-          <Logo />
-        </div>
-        <form
-          className="flex min-w-[24rem] w-1/3 flex-col"
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          spellCheck={false}
-        >
-          <div className="mb-10 flex">
-            <input
-              className="w-full rounded-l border-b border-l border-t px-2 py-1 focus:outline-hidden"
-              type="text"
-              size={50}
-              data-test="home-search-input"
-              placeholder={`Search by address / txn hash / block number${
-                provider._network.getPlugin(
-                  "org.ethers.plugins.network.Ens",
-                ) !== null
-                  ? " / ENS name"
-                  : ""
-              }${
-                supportsGNS(provider._network.chainId) ? " / .gwei name" : ""
-              }`}
-              onChange={handleChange}
-              ref={searchRef}
-              autoFocus
-            />
-            <button
-              className="flex items-center justify-center rounded-r border bg-skin-button-fill px-2 py-1 text-base text-skin-button hover:bg-skin-button-hover-fill focus:outline-hidden"
-              type="button"
-              onClick={() => setScanning(true)}
-              title="Scan an ETH address using your camera"
-            >
-              <FontAwesomeIcon icon={faQrcode} />
-            </button>
+      {isScanning && <CameraScanner turnOffScan={() => setScanning(false)} />}
+      <main className="min-h-0 grow overflow-y-auto bg-slate-50 dark:bg-slate-950">
+        <header className="relative z-20 border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+          <div className="border-b border-slate-100 dark:border-slate-900">
+            <div className="mx-auto flex min-h-10 max-w-[100rem] items-center justify-between px-3 sm:px-5 lg:px-8">
+              <div className="hidden sm:block">
+                {showPrice ? (
+                  <PriceBox />
+                ) : (
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                    {networkName}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
+                <FontAwesomeIcon icon={faServer} />
+                Direct node data
+              </div>
+            </div>
           </div>
-          <button
-            className="mx-auto mb-10 rounded-sm bg-skin-button-fill px-3 py-1 hover:bg-skin-button-hover-fill focus:outline-hidden"
-            type="submit"
-          >
-            Search
-          </button>
-        </form>
-        {!(config.branding?.hideAnnouncements ?? false) &&
-          config.experimental && (
-            <NavLink
-              className="text-md font-bold text-green-600 hover:text-green-800"
-              to="contracts/all"
-            >
-              🧪 EXPERIMENTAL CONTRACT BROWSER 🧪
+
+          <nav className="mx-auto flex h-[4.5rem] max-w-[100rem] items-center justify-between px-3 sm:px-5 lg:px-8">
+            <NavLink className="flex min-w-0 items-center gap-3" to="/">
+              <img
+                alt="An otter scanning"
+                className="h-11 w-11 rounded-full"
+                height={44}
+                src={Otter}
+                title="An otter scanning"
+                width={44}
+              />
+              <span
+                className="truncate font-title text-2xl font-bold text-slate-800 dark:text-slate-100"
+                data-test="logotext"
+              >
+                {config.branding?.siteName || "Otterscan"}
+                {config.experimental && <span className="text-red-400">2</span>}
+              </span>
             </NavLink>
-          )}
-        {latestBlock && (
-          <NavLink
-            className="mt-5 flex flex-col items-center space-y-1 text-sm text-gray-500 hover:text-link-blue"
-            to={blockURL(latestBlock.number)}
-            data-test="home-latest-block-header"
-          >
-            <div>Latest block: {commify(latestBlock.number)}</div>
-            <Timestamp value={latestBlock.timestamp} />
-          </NavLink>
-        )}
-        {finalizedSlotNumber !== undefined && (
-          <NavLink
-            className="mt-5 flex flex-col items-center space-y-1 text-sm text-gray-500 hover:text-link-blue"
-            to={slotURL(finalizedSlotNumber)}
-          >
-            <div>Finalized slot: {commify(finalizedSlotNumber)}</div>
-            {slotTime && <Timestamp value={slotTime} />}
-          </NavLink>
-        )}
-      </div>
+
+            <div className="flex h-full items-center gap-1 sm:gap-2">
+              <div className="hidden h-full items-center gap-1 md:flex">
+                <NavLink
+                  className="flex h-full items-center border-b-2 border-link-blue px-3 text-sm font-medium text-link-blue"
+                  to="/"
+                >
+                  Home
+                </NavLink>
+                <NavLink
+                  className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                  to="/special/liveBlocks"
+                >
+                  Latest blocks
+                </NavLink>
+                {finalizedSlotNumber !== undefined && (
+                  <NavLink
+                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                    to={`/slot/${finalizedSlotNumber}`}
+                  >
+                    Consensus
+                  </NavLink>
+                )}
+                {config.experimental && (
+                  <NavLink
+                    className="flex h-full items-center border-b-2 border-transparent px-3 text-sm font-medium text-slate-600 hover:text-link-blue dark:text-slate-300"
+                    to="/contracts/all"
+                  >
+                    Contracts
+                  </NavLink>
+                )}
+              </div>
+              <div className="h-10">
+                <SourcifyMenu />
+              </div>
+            </div>
+          </nav>
+        </header>
+
+        <section className="home-hero-pattern relative overflow-hidden text-white">
+          <div className="relative mx-auto max-w-[100rem] px-3 pt-11 pb-28 sm:px-5 sm:pt-14 lg:px-8">
+            <div className="max-w-5xl">
+              <div className="mb-3 text-xs font-bold tracking-[0.16em] text-sky-300 uppercase">
+                {networkName} explorer
+              </div>
+              <h1 className="font-title text-3xl font-bold tracking-tight sm:text-4xl">
+                Search the Ethereum blockchain
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+                Blocks, transactions, contracts, and names—read directly from
+                your node with no explorer indexer.
+              </p>
+
+              <form
+                autoComplete="off"
+                className="mt-7 flex max-w-5xl rounded-xl bg-white p-1.5 shadow-2xl shadow-black/25"
+                onSubmit={handleSubmit}
+                spellCheck={false}
+              >
+                <div className="flex w-full min-w-0 items-center">
+                  <FontAwesomeIcon
+                    className="ml-3 text-slate-400"
+                    icon={faMagnifyingGlass}
+                  />
+                  <input
+                    autoFocus
+                    className="min-w-0 grow bg-transparent px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden sm:text-base"
+                    data-test="home-search-input"
+                    onChange={handleChange}
+                    placeholder={`Search by ${searchTypes.join(" / ")}`}
+                    ref={searchRef}
+                    type="text"
+                  />
+                </div>
+                <button
+                  aria-label="Scan an Ethereum address using your camera"
+                  className="flex w-11 shrink-0 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-link-blue focus:outline-hidden"
+                  onClick={() => setScanning(true)}
+                  title="Scan an Ethereum address using your camera"
+                  type="button"
+                >
+                  <FontAwesomeIcon icon={faQrcode} />
+                </button>
+                <button
+                  aria-label="Search"
+                  className="ml-1 flex shrink-0 items-center justify-center gap-2 rounded-lg bg-link-blue px-4 py-3 text-sm font-bold text-white hover:bg-link-blue-hover focus:outline-hidden sm:px-5"
+                  type="submit"
+                >
+                  <FontAwesomeIcon icon={faMagnifyingGlass} />
+                  <span className="hidden sm:inline">Search</span>
+                </button>
+              </form>
+              <div className="mt-3 text-xs text-slate-400">
+                Search addresses · transaction hashes · blocks
+                {hasENS && " · ENS"}
+                {hasGNS && " · .gwei"}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="relative z-10 mx-auto -mt-14 max-w-[100rem] px-3 pb-10 sm:px-5 lg:px-8">
+          <HomeFeed
+            chainId={chainId}
+            feed={feed}
+            finalizedSlotNumber={finalizedSlotNumber}
+            finalizedSlotTimestamp={finalizedSlotTimestamp}
+            nativeDecimals={nativeCurrency.decimals}
+            nativeSymbol={nativeCurrency.symbol}
+            networkName={networkName}
+          />
+          {!(config.branding?.hideAnnouncements ?? false) &&
+            config.experimental && (
+              <div className="pt-6 text-center">
+                <NavLink
+                  className="text-sm font-bold text-emerald-600 hover:text-emerald-800 dark:text-emerald-400"
+                  to="/contracts/all"
+                >
+                  Explore the experimental contract browser
+                </NavLink>
+              </div>
+            )}
+        </div>
+      </main>
     </>
   );
 };
