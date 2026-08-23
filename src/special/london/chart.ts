@@ -1,6 +1,16 @@
-import { ChartData, ChartOptions } from "chart.js";
+import {
+  ChartData,
+  ChartOptions,
+  TooltipItem,
+  TooltipLabelStyle,
+} from "chart.js";
 import { ExtendedBlock } from "../../useErigonHooks";
 import { commify } from "../../utils/utils";
+
+const BURNT_FEES_COLOR = "#FB923C";
+const GAS_TARGET_COLOR = "#FCA5A5";
+const GAS_LIMIT_COLOR = "#B91C1CF0";
+const BASE_FEE_COLOR = "#38BDF8";
 
 function rgbToHex(red: number, green: number, blue: number): string {
   return `#${((red << 16) + (green << 8) + blue).toString(16).padStart(6, "0")}`;
@@ -13,11 +23,58 @@ function interpolateColor(gasUsed: number, gasLimit: number): string {
   return rgbToHex(red, green, blue);
 }
 
+const tooltipLabelStyle = (color: string): TooltipLabelStyle => ({
+  borderColor: color,
+  backgroundColor: color,
+  borderWidth: 2,
+});
+
+export const gasTooltipColor = (
+  datasetIndex: number,
+  gasUsed: number,
+  gasLimit: number,
+): string => {
+  switch (datasetIndex) {
+    case 0:
+      return interpolateColor(gasUsed, gasLimit);
+    case 1:
+      return GAS_TARGET_COLOR;
+    case 2:
+      return GAS_LIMIT_COLOR;
+    case 3:
+      return BASE_FEE_COLOR;
+    default:
+      return "#6B7280";
+  }
+};
+
+const gasTooltipLabelColor = (
+  context: TooltipItem<"line">,
+): TooltipLabelStyle => {
+  const gasUsed = Number(
+    context.chart.data.datasets[0].data[context.dataIndex],
+  );
+  const gasLimit = Number(
+    context.chart.data.datasets[2].data[context.dataIndex],
+  );
+  return tooltipLabelStyle(
+    gasTooltipColor(context.datasetIndex, gasUsed, gasLimit),
+  );
+};
+
 export const burntFeesChartOptions: ChartOptions<"line"> = {
   animation: false,
   plugins: {
     legend: {
       display: false,
+    },
+    tooltip: {
+      callbacks: {
+        labelColor: (context) =>
+          tooltipLabelStyle(
+            context.datasetIndex === 0 ? BURNT_FEES_COLOR : BASE_FEE_COLOR,
+          ),
+      },
     },
   },
   scales: {
@@ -68,14 +125,14 @@ export const burntFeesChartData = (
         .reverse(),
       fill: true,
       backgroundColor: "#FDBA7470",
-      borderColor: "#FB923C",
+      borderColor: BURNT_FEES_COLOR,
       tension: 0.2,
     },
     {
       label: "Base fee (wei)",
       data: blocks.map((b) => Number(b.baseFeePerGas!)).reverse(),
       yAxisID: "yBaseFee",
-      borderColor: "#38BDF8",
+      borderColor: BASE_FEE_COLOR,
       tension: 0.2,
     },
   ],
@@ -90,6 +147,11 @@ export const gasChartOptions: ChartOptions<"line"> = {
   plugins: {
     legend: {
       display: false,
+    },
+    tooltip: {
+      callbacks: {
+        labelColor: gasTooltipLabelColor,
+      },
     },
   },
   scales: {
@@ -149,7 +211,7 @@ export const gasChartData = (blocks: ExtendedBlock[]): ChartData<"line"> => ({
     {
       label: "Gas target",
       data: blocks.map((b) => Math.round(Number(b.gasLimit) / 2)).reverse(),
-      borderColor: "#FCA5A5",
+      borderColor: GAS_TARGET_COLOR,
       borderDash: [5, 5],
       borderWidth: 2,
       tension: 0.2,
@@ -158,7 +220,7 @@ export const gasChartData = (blocks: ExtendedBlock[]): ChartData<"line"> => ({
     {
       label: "Gas limit",
       data: blocks.map((b) => Number(b.gasLimit)).reverse(),
-      borderColor: "#B91C1CF0",
+      borderColor: GAS_LIMIT_COLOR,
       tension: 0.2,
       pointStyle: "crossRot",
       pointRadius: 5,
@@ -167,7 +229,7 @@ export const gasChartData = (blocks: ExtendedBlock[]): ChartData<"line"> => ({
       label: "Base fee (wei)",
       data: blocks.map((b) => Number(b.baseFeePerGas!)).reverse(),
       yAxisID: "yBaseFee",
-      borderColor: "#38BDF8",
+      borderColor: BASE_FEE_COLOR,
       tension: 0.2,
     },
   ],
