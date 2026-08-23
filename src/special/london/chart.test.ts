@@ -41,8 +41,8 @@ describe("burn and issuance tooltip colors", () => {
       issuanceWei: 407_042_555_000_000_000n,
       burntWei: 420_000_000_000_000_000n,
       deflationary: true,
-      breakEvenBaseFeeGwei: 13.5680851667,
-      minimumDeflationaryBaseFeeWei: 13_568_085_167n,
+      targetBreakEvenBaseFeeGwei: 13.5680851667,
+      minimumTargetDeflationaryBaseFeeWei: 13_568_085_167n,
       slotsElapsed: 1,
     };
 
@@ -53,7 +53,7 @@ describe("burn and issuance tooltip colors", () => {
       "Burn",
       "Consensus issuance (estimated)",
       "Base fee",
-      "Deflationary above",
+      "Target deflation threshold",
     ]);
     expect(data.datasets[0].data).toEqual([420_000_000]);
     expect(data.datasets[1].data).toEqual([407_042_555]);

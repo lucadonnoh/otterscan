@@ -6,9 +6,7 @@ import { useChainInfo } from "../../useChainInfo";
 import { ExtendedBlock } from "../../useErigonHooks";
 import { commify } from "../../utils/utils";
 import Blip from "./Blip";
-import { BlockSupply } from "./issuance";
-
-const ELASTICITY_MULTIPLIER = 2n;
+import { BlockSupply, eip1559GasTarget } from "./issuance";
 
 type BlockRowProps = {
   block: ExtendedBlock;
@@ -20,7 +18,7 @@ const BlockRow: React.FC<BlockRowProps> = ({ block, baseFeeDelta, supply }) => {
   const {
     nativeCurrency: { symbol },
   } = useChainInfo();
-  const gasTarget = block.gasLimit / ELASTICITY_MULTIPLIER;
+  const gasTarget = eip1559GasTarget(block.gasLimit);
   const burntFees = block.baseFeePerGas! * block.gasUsed;
 
   return (
@@ -61,9 +59,10 @@ const BlockRow: React.FC<BlockRowProps> = ({ block, baseFeeDelta, supply }) => {
               className={`text-xs ${
                 supply.deflationary ? "text-emerald-500" : "text-gray-400"
               }`}
-              title="Base fee where execution-layer burn equals consensus issuance"
+              title={`Base fee where burn at this block's ${commify(gasTarget)} gas target equals consensus issuance`}
             >
-              defl. above {supply.breakEvenBaseFeeGwei.toFixed(2)} Gwei
+              defl. at target &gt;{" "}
+              {supply.targetBreakEvenBaseFeeGwei.toFixed(2)} Gwei
             </div>
           )}
           <Blip value={baseFeeDelta} />

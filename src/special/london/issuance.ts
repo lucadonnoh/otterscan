@@ -1,4 +1,5 @@
 const GWEI_TO_WEI = 1_000_000_000n;
+const EIP1559_ELASTICITY_MULTIPLIER = 2n;
 
 export type ConsensusIssuance = {
   slot: number;
@@ -13,10 +14,13 @@ export type BlockSupply = {
   issuanceWei: bigint;
   burntWei: bigint;
   deflationary: boolean;
-  breakEvenBaseFeeGwei: number;
-  minimumDeflationaryBaseFeeWei: bigint;
+  targetBreakEvenBaseFeeGwei: number;
+  minimumTargetDeflationaryBaseFeeWei: bigint;
   slotsElapsed: number;
 };
+
+export const eip1559GasTarget = (gasLimit: bigint): bigint =>
+  gasLimit / EIP1559_ELASTICITY_MULTIPLIER;
 
 const parseInteger = (value: unknown, field: string): bigint => {
   if (typeof value !== "string" || !/^[0-9]+$/.test(value)) {
@@ -121,14 +125,21 @@ export const elapsedSlots = (
   );
 };
 
-export const calculateBlockSupply = (
-  issuance: ConsensusIssuance,
-  slotsElapsed: number,
-  gasUsed: bigint,
-  baseFeePerGas: bigint,
-): BlockSupply => {
-  if (gasUsed <= 0n) {
-    throw new Error("Cannot calculate a deflationary base fee without gas use");
+export const calculateBlockSupply = ({
+  issuance,
+  slotsElapsed,
+  gasUsed,
+  gasTarget,
+  baseFeePerGas,
+}: {
+  issuance: ConsensusIssuance;
+  slotsElapsed: number;
+  gasUsed: bigint;
+  gasTarget: bigint;
+  baseFeePerGas: bigint;
+}): BlockSupply => {
+  if (gasUsed < 0n || gasTarget <= 0n) {
+    throw new Error("Invalid gas values for supply calculation");
   }
   const normalizedSlotsElapsed = Math.max(1, Math.trunc(slotsElapsed));
   const issuanceGwei =
@@ -141,8 +152,8 @@ export const calculateBlockSupply = (
     issuanceWei,
     burntWei,
     deflationary: burntWei > issuanceWei,
-    breakEvenBaseFeeGwei: Number(issuanceGwei) / Number(gasUsed),
-    minimumDeflationaryBaseFeeWei: issuanceWei / gasUsed + 1n,
+    targetBreakEvenBaseFeeGwei: Number(issuanceGwei) / Number(gasTarget),
+    minimumTargetDeflationaryBaseFeeWei: issuanceWei / gasTarget + 1n,
     slotsElapsed: normalizedSlotsElapsed,
   };
 };

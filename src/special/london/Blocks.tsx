@@ -40,6 +40,7 @@ import {
   BlockSupply,
   ConsensusIssuance,
   calculateBlockSupply,
+  eip1559GasTarget,
   elapsedSlots,
   executionTimestampToSlot,
   fetchConsensusIssuance,
@@ -165,16 +166,17 @@ const Blocks: React.FC<BlocksProps> = ({ latestBlock }) => {
       if (issuance === undefined || block.baseFeePerGas === null) {
         return;
       }
-      supply[block.number] = calculateBlockSupply(
+      supply[block.number] = calculateBlockSupply({
         issuance,
-        elapsedSlots(
+        slotsElapsed: elapsedSlots(
           block.timestamp,
           blocks[index + 1]?.timestamp,
           secondsPerSlot,
         ),
-        block.gasUsed,
-        block.baseFeePerGas,
-      );
+        gasUsed: block.gasUsed,
+        gasTarget: eip1559GasTarget(block.gasLimit),
+        baseFeePerGas: block.baseFeePerGas,
+      });
     });
     return supply;
   }, [blocks, issuanceByBlock, secondsPerSlot]);

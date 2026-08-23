@@ -229,13 +229,13 @@ export const burntFeesChartData = (
       tension: 0.2,
     },
     {
-      label: "Deflationary above",
+      label: "Target deflation threshold",
       data: blocks
         .map((b) => {
           const supply = supplyByBlock[b.number];
           return supply === undefined
             ? null
-            : Number(supply.minimumDeflationaryBaseFeeWei);
+            : Number(supply.minimumTargetDeflationaryBaseFeeWei);
         })
         .reverse(),
       yAxisID: "yBaseFee",
