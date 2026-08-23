@@ -259,6 +259,17 @@ export type OtterscanConfig = {
   };
 
   /**
+   * Optional, privacy-preserving operational monitoring.
+   */
+  monitoring?: {
+    /**
+     * Relative same-origin endpoint prefix for coarse route-view events.
+     * The explorer sends only a fixed route category, never the raw path.
+     */
+    pageviewEndpoint?: string;
+  };
+
+  /**
    * Temporary config option, until address labels are complete: Enables setting
    * address labels which are kept in local storage.
    */

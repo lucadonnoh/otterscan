@@ -17,6 +17,7 @@ import ConnectionErrorPanel from "./ConnectionErrorPanel";
 import Footer from "./Footer";
 import Home from "./Home";
 import Main from "./Main";
+import PageviewReporter from "./monitoring/PageviewReporter";
 import {
   addressAttributesQuery,
   erc20HoldingsQuery,
@@ -252,6 +253,9 @@ const Layout: FC = () => {
                       value={runtime.config!.chainInfo}
                     >
                       <AppConfigContext.Provider value={appConfig}>
+                        <PageviewReporter
+                          endpoint={config.monitoring?.pageviewEndpoint}
+                        />
                         <div className="flex h-screen flex-col">
                           <WarningHeader />
                           <Outlet />
