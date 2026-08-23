@@ -1,8 +1,4 @@
-import {
-  faMagnifyingGlass,
-  faQrcode,
-  faServer,
-} from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faQrcode } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC, lazy, memo, useContext, useState } from "react";
 import { NavLink } from "react-router";
@@ -60,22 +56,14 @@ const Home: FC = () => {
       {isScanning && <CameraScanner turnOffScan={() => setScanning(false)} />}
       <main className="min-h-0 grow overflow-y-auto bg-slate-50">
         <header className="relative z-20 border-b border-slate-200 bg-white">
-          <div className="border-b border-slate-100">
-            <div className="mx-auto flex min-h-10 max-w-[100rem] items-center justify-between px-3 sm:px-5 lg:px-8">
-              <div className="hidden sm:block">
+          <div className="hidden border-b border-slate-100 sm:block">
+            <div className="mx-auto flex min-h-10 max-w-[100rem] items-center px-5 lg:px-8">
+              <div>
                 {showPrice ? (
                   <PriceBox />
                 ) : (
                   <span className="text-xs text-slate-500">{networkName}</span>
                 )}
-              </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-                <FontAwesomeIcon icon={faServer} />
-                Direct node data
               </div>
             </div>
           </div>
@@ -143,17 +131,9 @@ const Home: FC = () => {
               <div className="mb-3 text-xs font-bold tracking-[0.16em] text-sky-300 uppercase">
                 {networkName} explorer
               </div>
-              <h1 className="font-title text-3xl font-bold tracking-tight sm:text-4xl">
-                Search the Ethereum blockchain
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                Blocks, transactions, contracts, and names—read directly from
-                your node with no explorer indexer.
-              </p>
-
               <form
                 autoComplete="off"
-                className="mt-7 flex max-w-5xl rounded-xl bg-white p-1.5 shadow-2xl shadow-black/25"
+                className="mt-5 flex max-w-5xl rounded-xl bg-white p-1.5 shadow-2xl shadow-black/25"
                 onSubmit={handleSubmit}
                 spellCheck={false}
               >
@@ -190,11 +170,6 @@ const Home: FC = () => {
                   <span className="hidden sm:inline">Search</span>
                 </button>
               </form>
-              <div className="mt-3 text-xs text-slate-400">
-                Search addresses · transaction hashes · blocks
-                {hasENS && " · ENS"}
-                {hasGNS && " · .gwei"}
-              </div>
             </div>
           </div>
         </section>
